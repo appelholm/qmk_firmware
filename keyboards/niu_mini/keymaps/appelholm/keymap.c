@@ -9,15 +9,19 @@ enum layers
     _US = 0,
     _SE,
     _DBG,
-    _FN1,
-    _FN2,
-    _FN3,
+    _CHAR,
+    _NUM,
+    _NAV,
     _SYS
 };
 
 enum custom_keycodes
 {
-    PMEMBER = SAFE_RANGE
+    PMEMBER = SAFE_RANGE,
+    IS_EQUAL,
+    NOT_EQUAL,
+    GRT_EQUAL,
+    LT_EQUAL
 };
 
 enum macros
@@ -37,7 +41,7 @@ static struct
 void keyboard_post_init_user(void)
 {
     rgblight_enable_noeeprom();
-    rgblight_sethsv_noeeprom_gold();
+    rgblight_sethsv_noeeprom_goldenrod();
     rgblight_mode_noeeprom(RGBLIGHT_MODE_STATIC_LIGHT);
 
     internal.idle_timer = timer_read();
@@ -77,6 +81,30 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record)
                 SEND_STRING("->");
             }
             break;
+        case IS_EQUAL:
+            if (record->event.pressed)
+            {
+                SEND_STRING("==");
+            }
+            break;
+        case NOT_EQUAL:
+            if (record->event.pressed)
+            {
+                SEND_STRING("!=");
+            }
+            break;
+        case GRT_EQUAL:
+            if (record->event.pressed)
+            {
+                SEND_STRING(">=");
+            }
+            break;
+        case LT_EQUAL:
+            if (record->event.pressed)
+            {
+                SEND_STRING("<=");
+            }
+            break;
     }
 
 exit:
@@ -92,15 +120,19 @@ layer_state_t layer_state_set_user(layer_state_t state)
             rgblight_mode_noeeprom(RGBLIGHT_MODE_STATIC_LIGHT);
             break;
         case _SE:
-            rgblight_sethsv_noeeprom_blue();
-            rgblight_mode_noeeprom(RGBLIGHT_MODE_BREATHING + 3);
+            rgblight_sethsv_noeeprom_teal();
+            rgblight_mode_noeeprom(RGBLIGHT_MODE_STATIC_LIGHT);
             break;
-        case _FN1:
+        case _CHAR:
             rgblight_sethsv_noeeprom_orange();
             rgblight_mode_noeeprom(RGBLIGHT_MODE_STATIC_LIGHT);
             break;
-        case _FN2:
+        case _NUM:
             rgblight_sethsv_noeeprom_green();
+            rgblight_mode_noeeprom(RGBLIGHT_MODE_STATIC_LIGHT);
+            break;
+        case _NAV:
+            rgblight_sethsv_noeeprom_springgreen();
             rgblight_mode_noeeprom(RGBLIGHT_MODE_STATIC_LIGHT);
             break;
         case _SYS:
@@ -130,7 +162,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] =
      * `-----------------------------------------------------------------------------------'
      */
     [_US] = LAYOUT_planck_mit(
-        LT(_FN3, KC_TAB), KC_Q, KC_W, KC_E, KC_R, KC_T, KC_Y, KC_U, KC_I, KC_O,
+        LT(_NAV, KC_TAB), KC_Q, KC_W, KC_E, KC_R, KC_T, KC_Y, KC_U, KC_I, KC_O,
         KC_P, KC_BSPC,
 
         MT(MOD_LCTL, KC_ESC), KC_A, KC_S, KC_D, KC_F, KC_G, KC_H, KC_J, KC_K,
@@ -139,7 +171,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] =
         KC_LSFT, KC_Z, KC_X, KC_C, KC_V, KC_B, KC_N, KC_M, KC_COMM, KC_DOT,
         KC_SLSH, KC_SFTENT,
 
-        KC_LCTL, KC_LGUI, KC_LALT, KC_LALT, MO(_FN2), KC_SPC, LT(_FN1, KC_ENT),
+        KC_LCTL, KC_LGUI, KC_LALT, KC_LALT, LT(_NUM, KC_BSPC), KC_SPC, LT(_CHAR, KC_ENT),
         KC_LEFT, KC_DOWN, KC_UP, KC_RGHT
     ),
 
@@ -204,17 +236,17 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] =
      * |      |      |      |      |      |      |      |      | Home | PgDn | PgUp | End  |
      * `-----------------------------------------------------------------------------------'
      */
-    [_FN1] = LAYOUT_planck_mit(
-        KC_GRV, KC_EXLM, KC_AT, KC_LCBR, KC_RCBR, KC_PIPE, KC_AMPR, KC_7, KC_8,
-        KC_9, KC_ASTR, KC_DEL,
+    [_CHAR] = LAYOUT_planck_mit(
+        KC_GRV, KC_EXLM, KC_AT, KC_LCBR, KC_RCBR, KC_PIPE, KC_RABK, _______, _______,
+        _______, _______, _______,
 
-        _______, KC_HASH, KC_DOLLAR, KC_LPRN, KC_RPRN, KC_AMPR, KC_PLUS, KC_4,
-        KC_5, KC_6, KC_MINUS, KC_BSLASH,
+        KC_HASH, KC_DOLLAR, KC_PERC, KC_LPRN, KC_RPRN, KC_AMPR, KC_PLUS, _______,
+        _______, _______, _______, KC_BSLASH,
 
-        _______, KC_PERC, KC_CIRC, KC_LBRC, KC_RBRC, _______, KC_0, KC_1, KC_2,
-        KC_3, _______, _______,
+        KC_CIRC, KC_AMPR, KC_ASTR, KC_LBRC, KC_RBRC, KC_MINUS, KC_PLUS, _______,
+        LT_EQUAL, GRT_EQUAL, _______, _______,
 
-        RESET, _______, _______, _______, _______, _______, _______, KC_HOME,
+        KC_EQUAL, IS_EQUAL, NOT_EQUAL, _______, _______, _______, _______, KC_HOME,
         KC_PGDN, KC_PGUP, KC_END
     ),
 
@@ -229,17 +261,17 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] =
      * |      |      |      |      |      |      |      |      |      |      |      |      |
      * `-----------------------------------------------------------------------------------'
      */
-    [_FN2] = LAYOUT_planck_mit(
-        KC_F1, KC_F2, KC_F3, KC_F4, KC_F5, KC_F6, KC_7, KC_8, KC_9, KC_MINUS,
-        KC_PLUS, KC_F12,
+    [_NUM] = LAYOUT_planck_mit(
+        _______, _______, _______, _______, _______, _______, _______, KC_7,
+        KC_8, KC_9, KC_MINUS, KC_PLUS,
 
-        _______, _______, _______, _______, _______, _______, KC_4, KC_5,
-        KC_6,  KC_EQUAL, KC_RIGHT, _______,
+        _______, _______, _______, _______, _______, _______, _______, KC_4,
+        KC_5, KC_6, KC_EQUAL, KC_EQUAL,
 
-        _______, _______, _______, _______, _______, _______, KC_1, KC_2,
-        KC_3, KC_3, KC_ASTR, _______,
+        _______, _______, _______, _______, _______, _______, _______, KC_1,
+        KC_2, KC_3, KC_ASTR, _______,
 
-        _______, _______, _______, TG(_SE), _______, KC_0, _______, _______,
+        TG(_SYS), _______, _______, TG(_SE), _______, _______, KC_0, _______,
         _______, _______, _______
     ),
 
@@ -254,9 +286,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] =
      * |      |      |      |      |      |      |      |      |      |      |      |      |
      * `-----------------------------------------------------------------------------------'
      */
-    [_FN3] = LAYOUT_planck_mit(
+    [_NAV] = LAYOUT_planck_mit(
         KC_F1, KC_F2, KC_F3, KC_F4, KC_F5, KC_F6, KC_7, KC_8, KC_9, KC_MINUS,
-        KC_PLUS, KC_F12,
+        KC_PLUS, KC_DEL,
 
         _______, _______, _______, _______, _______, _______, KC_LEFT, KC_DOWN,
         KC_UP, KC_RIGHT, KC_RIGHT, _______,
